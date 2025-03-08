@@ -1,0 +1,21 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  ArtifactBucket:
+    Type: String
+  BuildNumber:
+    Type: String
+
+Resources:
+  AppEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-05b10e08d247fb927
+      InstanceType: t2.micro
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          yum install -y aws-cli
+          aws s3 cp s3://${ArtifactBucket}/artifacts/${BuildNumber}/ /var/app --recursive
+          cd /var/app
+          npm install
+          node index.js
